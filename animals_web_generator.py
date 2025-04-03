@@ -11,7 +11,8 @@ def load_data(name):
     if response.status_code == requests.codes.ok:
         response_data = response.json()
         if len(response_data) < 1:
-            return False
+            print('There is no animal with that name')
+            return []
         else:
             return response_data
     else:
@@ -137,7 +138,8 @@ def main():
     """
     name = input('Enter a name of an animal: ')
     animals_data = load_data(name)
-    if animals_data:
+    html_page = read_html('animals_template.html')
+    if len(animals_data) > 0:
         input_valid = False
         animal_skin_type = ''
 
@@ -151,8 +153,6 @@ def main():
             else:
                 print("Invalid input. Please enter Y or N.")
 
-        html_page = read_html('animals_template.html')
-
         if animal_skin_type:
             output = filter_animals(animals_data, animal_skin_type)
         else:
@@ -162,7 +162,8 @@ def main():
         write_new_html_page(new_html_page, 'animals.html')
         print('Website was successfully generated to the file animals.html.')
     else:
-        print('There is no animal with that name')
+        new_html_page = html_page.replace('__REPLACE_ANIMALS_INFO__', f'<h2>The animal "{name}" doesn not exist.</h2>')
+        write_new_html_page(new_html_page, 'animals.html')
 
 
 if __name__ == '__main__':
