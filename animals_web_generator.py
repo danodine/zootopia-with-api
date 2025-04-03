@@ -1,23 +1,4 @@
-import requests
-import json
-
-
-def load_data(name):
-    """
-    Load data from a API.
-    """
-    api_url = 'https://api.api-ninjas.com/v1/animals?name={}'.format(name)
-    response = requests.get(api_url, headers={'X-Api-Key': 'XzwRWR2ZsgQd9Sq5LFcGog==77uPRLPKV6sF8cyf'})
-    if response.status_code == requests.codes.ok:
-        response_data = response.json()
-        if len(response_data) < 1:
-            print('There is no animal with that name')
-            return []
-        else:
-            return response_data
-    else:
-        print("Error:", response.status_code, response.text)
-        return False
+import data_fetcher
 
 
 def read_html(file_path):
@@ -137,7 +118,7 @@ def main():
     Main function to run the animal HTML page generator.
     """
     name = input('Enter a name of an animal: ')
-    animals_data = load_data(name)
+    animals_data = data_fetcher.fetch_data(name)
     html_page = read_html('animals_template.html')
     if len(animals_data) > 0:
         input_valid = False
