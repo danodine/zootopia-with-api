@@ -1,3 +1,4 @@
+import requests
 import json
 
 
@@ -11,8 +12,14 @@ def load_data(file_path):
     Returns:
         dict or list: Parsed JSON data.
     """
-    with open(file_path, "r", encoding='utf-8') as handle:
-        return json.load(handle)
+    name = 'fox'
+    api_url = 'https://api.api-ninjas.com/v1/animals?name={}'.format(name)
+    response = requests.get(api_url, headers={'X-Api-Key': 'XzwRWR2ZsgQd9Sq5LFcGog==77uPRLPKV6sF8cyf'})
+    if response.status_code == requests.codes.ok:
+        return response.json()
+    else:
+        print("Error:", response.status_code, response.text)
+
 
 
 def read_html(file_path):
@@ -51,7 +58,6 @@ def create_animal_string(animals_data):
         len_animal_locations = len(animal['locations'])
         location_str = ''
         for key, location in enumerate(animal['locations']):
-            print(len_animal_locations)
             if len_animal_locations > 1:
                 if key == len_animal_locations-2:
                     location_str += f"{location} and "
