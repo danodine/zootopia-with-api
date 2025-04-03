@@ -2,24 +2,21 @@ import requests
 import json
 
 
-def load_data(file_path):
+def load_data(name):
     """
-    Load data from a JSON file.
-
-    Args:
-        file_path (str): Path to the JSON file.
-
-    Returns:
-        dict or list: Parsed JSON data.
+    Load data from a API.
     """
-    name = 'fox'
     api_url = 'https://api.api-ninjas.com/v1/animals?name={}'.format(name)
     response = requests.get(api_url, headers={'X-Api-Key': 'XzwRWR2ZsgQd9Sq5LFcGog==77uPRLPKV6sF8cyf'})
     if response.status_code == requests.codes.ok:
-        return response.json()
+        response_data = response.json()
+        if len(response_data) < 1:
+            return False
+        else:
+            return response_data
     else:
         print("Error:", response.status_code, response.text)
-
+        return False
 
 
 def read_html(file_path):
@@ -59,9 +56,9 @@ def create_animal_string(animals_data):
         location_str = ''
         for key, location in enumerate(animal['locations']):
             if len_animal_locations > 1:
-                if key == len_animal_locations-2:
+                if key == len_animal_locations - 2:
                     location_str += f"{location} and "
-                elif key == key == len_animal_locations-1:
+                elif key == key == len_animal_locations - 1:
                     location_str += f"{location}"
                 else:
                     location_str += f"{location}, "
@@ -138,29 +135,34 @@ def main():
     """
     Main function to run the animal HTML page generator.
     """
-    animals_data = load_data('animals_data.json')
-    input_valid = False
-    animal_skin_type = ''
+    name = input('Enter a name of an animal: ')
+    animals_data = load_data(name)
+    if animals_data:
+        input_valid = False
+        animal_skin_type = ''
 
-    while not input_valid:
-        new_game = input('Do you want to filter by skin type Y/N: ').strip().lower()
-        if new_game == 'y':
-            animal_skin_type = get_animals_skin(animals_data)
-            input_valid = True
-        elif new_game == 'n':
-            input_valid = True
+        while not input_valid:
+            new_game = input('Do you want to filter by skin type Y/N: ').strip().lower()
+            if new_game == 'y':
+                animal_skin_type = get_animals_skin(animals_data)
+                input_valid = True
+            elif new_game == 'n':
+                input_valid = True
+            else:
+                print("Invalid input. Please enter Y or N.")
+
+        html_page = read_html('animals_template.html')
+
+        if animal_skin_type:
+            output = filter_animals(animals_data, animal_skin_type)
         else:
-            print("Invalid input. Please enter Y or N.")
+            output = create_animal_string(animals_data)
 
-    html_page = read_html('animals_template.html')
-
-    if animal_skin_type:
-        output = filter_animals(animals_data, animal_skin_type)
+        new_html_page = html_page.replace('__REPLACE_ANIMALS_INFO__', output)
+        write_new_html_page(new_html_page, 'animals.html')
+        print('Website was successfully generated to the file animals.html.')
     else:
-        output = create_animal_string(animals_data)
-
-    new_html_page = html_page.replace('__REPLACE_ANIMALS_INFO__', output)
-    write_new_html_page(new_html_page, 'animals.html')
+        print('There is no animal with that name')
 
 
 if __name__ == '__main__':
